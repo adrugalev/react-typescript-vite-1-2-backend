@@ -1,4 +1,5 @@
 import { formatElapsedTime, getFlagUrl, getResultSummary, type MistakeAnswer } from "../utils/quiz";
+import ResultTravelerIllustration from "./ResultTravelerIllustration";
 
 interface ResultScreenProps {
   correctAnswers: number;
@@ -19,6 +20,8 @@ function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, o
         <h1 id="result-title">Раунд завершён</h1>
         <p className="lead">{result.message}</p>
       </div>
+
+      <ResultTravelerIllustration percent={result.percent} />
 
       <div className="result-grid" aria-label="Статистика раунда">
         <div className="result-card">

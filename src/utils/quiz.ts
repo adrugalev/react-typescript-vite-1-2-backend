@@ -72,6 +72,7 @@ const RARE_COUNTRY_CODES = new Set([
 export type QuizMode = "capital" | "flag" | "bulch";
 export type QuestionKind = "capital" | "flag";
 export type GameType = "normal" | "timed";
+export type QuestionPool = "all" | "rare";
 
 export interface Question {
   country: Country;
@@ -136,12 +137,17 @@ export function getQuestionKind(mode: QuizMode): QuestionKind {
   return mode;
 }
 
-export function createRoundQuestions(countries: readonly Country[], mode: QuizMode = "capital"): Question[] {
+export function createRoundQuestions(
+  countries: readonly Country[],
+  mode: QuizMode = "capital",
+  questionPool: QuestionPool = "all",
+): Question[] {
   const count = getRoundLength(mode);
   const optionCount = getOptionsCount(mode);
   const rareCountries = countries.filter((country) => RARE_COUNTRY_CODES.has(country.code));
-  const questionSource = mode === "bulch" && rareCountries.length >= count ? rareCountries : countries;
-  const optionSource = mode === "bulch" && rareCountries.length >= optionCount ? rareCountries : countries;
+  const shouldUseRareCountries = mode === "bulch" || questionPool === "rare";
+  const questionSource = shouldUseRareCountries && rareCountries.length >= count ? rareCountries : countries;
+  const optionSource = shouldUseRareCountries && rareCountries.length >= optionCount ? rareCountries : countries;
 
   return pickRandomQuestions(questionSource, count).map((country) => ({
     country,
@@ -154,14 +160,14 @@ export function getResultSummary(correct: number, total = ROUND_LENGTH): ResultS
   const mistakes = total - correct;
   const percent = Math.round((correct / total) * 100);
 
-  let message = "Слабовато. Пора открывать карту мира.";
+  let message = "Путешественник сердится: срочно открываем атлас и берём реванш!";
 
-  if (percent >= 90) {
-    message = "Отлично! Вы явно дружите с географией.";
-  } else if (percent >= 70) {
-    message = "Хороший результат. Есть пара мест, которые стоит освежить.";
-  } else if (percent >= 40) {
-    message = "Средне. География пока держит оборону.";
+  if (percent === 100) {
+    message = "Путешественник счастлив: всё отлично, ты разбираешься в географии на 5!";
+  } else if (percent >= 80) {
+    message = "Путешественник улыбается: отличный маршрут, осталось совсем чуть-чуть!";
+  } else if (percent >= 60) {
+    message = "Путешественник приуныл: несколько стран ещё просят повторения.";
   }
 
   return {

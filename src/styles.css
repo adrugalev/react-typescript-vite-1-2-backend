@@ -109,6 +109,13 @@ h2 {
   line-height: 1.42;
 }
 
+.start-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .mode-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -147,6 +154,92 @@ h2 {
   background: #fff;
   color: #111827;
   box-shadow: 0 8px 18px rgba(32, 51, 72, 0.1);
+}
+
+.difficulty-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  padding: 7px 8px 7px 14px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.difficulty-toggle:hover {
+  border-color: #9db2c8;
+  box-shadow: 0 10px 22px rgba(32, 51, 72, 0.1);
+}
+
+.difficulty-toggle__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.difficulty-toggle__copy span {
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.difficulty-toggle__copy small {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.difficulty-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.difficulty-toggle__switch {
+  position: relative;
+  display: block;
+  width: 46px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #cbd7e3;
+  transition: background 160ms ease;
+}
+
+.difficulty-toggle__switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(32, 51, 72, 0.24);
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.difficulty-toggle input:checked + .difficulty-toggle__switch {
+  background: #0f766e;
+}
+
+.difficulty-toggle input:checked + .difficulty-toggle__switch::after {
+  transform: translateX(20px);
+}
+
+.difficulty-toggle input:focus-visible + .difficulty-toggle__switch {
+  outline: 3px solid rgba(37, 99, 235, 0.26);
+  outline-offset: 3px;
 }
 
 .mode-card,
@@ -482,6 +575,26 @@ h2 {
   gap: 14px;
 }
 
+.result-hero {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #d5e5ef;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(32, 51, 72, 0.12);
+  margin: 0;
+  padding: clamp(10px, 2vw, 18px);
+}
+
+.result-hero__image {
+  display: block;
+  width: min(100%, 390px);
+  height: auto;
+  border-radius: 14px;
+  object-fit: contain;
+}
+
 .result-card {
   border-radius: 16px;
   padding: 16px;
@@ -617,6 +730,11 @@ h2 {
 
   .game-type-switch {
     width: 100%;
+  }
+
+  .difficulty-toggle {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .quiz-header {

@@ -3,7 +3,15 @@ import StartScreen from "./components/StartScreen";
 import QuizScreen from "./components/QuizScreen";
 import ResultScreen from "./components/ResultScreen";
 import { countries } from "./data/countries";
-import { createRoundQuestions, getRoundLength, type GameType, type MistakeAnswer, type Question, type QuizMode } from "./utils/quiz";
+import {
+  createRoundQuestions,
+  getRoundLength,
+  type GameType,
+  type MistakeAnswer,
+  type Question,
+  type QuestionPool,
+  type QuizMode,
+} from "./utils/quiz";
 
 type Screen = "start" | "quiz" | "result";
 
@@ -11,6 +19,7 @@ function App() {
   const [screen, setScreen] = useState<Screen>("start");
   const [mode, setMode] = useState<QuizMode>("capital");
   const [gameType, setGameType] = useState<GameType>("normal");
+  const [rareMode, setRareMode] = useState(false);
   const [questions, setQuestions] = useState<Question[]>(() => createRoundQuestions(countries, "capital"));
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(getRoundLength("capital"));
@@ -19,22 +28,26 @@ function App() {
 
   const modeTitle = useMemo(
     () => {
+      const rareModeSuffix = rareMode && mode !== "bulch" ? " · редкие страны" : "";
+
       if (mode === "capital") {
-        return "Угадай, чья это столица";
+        return `Угадай, чья это столица${rareModeSuffix}`;
       }
 
       if (mode === "flag") {
-        return "Угадай, чей это флаг";
+        return `Угадай, чей это флаг${rareModeSuffix}`;
       }
 
       return "Для Бульча";
     },
-    [mode],
+    [mode, rareMode],
   );
 
   const startRound = (selectedMode = mode) => {
+    const questionPool: QuestionPool = rareMode && selectedMode !== "bulch" ? "rare" : "all";
+
     setMode(selectedMode);
-    setQuestions(createRoundQuestions(countries, selectedMode));
+    setQuestions(createRoundQuestions(countries, selectedMode, questionPool));
     setCorrectAnswers(0);
     setTotalQuestions(getRoundLength(selectedMode));
     setMistakes([]);
@@ -57,7 +70,13 @@ function App() {
     <div className="app-shell">
       <main className="app-main">
         {screen === "start" && (
-          <StartScreen gameType={gameType} onSelectGameType={setGameType} onSelectMode={startRound} />
+          <StartScreen
+            gameType={gameType}
+            rareMode={rareMode}
+            onSelectGameType={setGameType}
+            onToggleRareMode={setRareMode}
+            onSelectMode={startRound}
+          />
         )}
 
         {screen === "quiz" && (
