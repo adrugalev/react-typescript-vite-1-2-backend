@@ -1,4 +1,4 @@
-import { formatElapsedTime, getFlagUrl, getResultSummary, type MistakeAnswer } from "../utils/quiz";
+import { formatElapsedTime, getFlagFallbackUrl, getFlagUrl, getResultSummary, type MistakeAnswer } from "../utils/quiz";
 import ResultTravelerIllustration from "./ResultTravelerIllustration";
 
 interface ResultScreenProps {
@@ -59,6 +59,13 @@ function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, o
                       }`}
                       src={getFlagUrl(mistake.correctCountry.code)}
                       alt={`Флаг страны ${mistake.correctCountry.country}`}
+                      onError={(event) => {
+                        const image = event.currentTarget;
+
+                        if (image.src !== getFlagFallbackUrl(mistake.correctCountry.code)) {
+                          image.src = getFlagFallbackUrl(mistake.correctCountry.code);
+                        }
+                      }}
                     />
                   ) : (
                     <strong>{mistake.correctCountry.country}</strong>
@@ -71,6 +78,13 @@ function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, o
                       className={mistake.selectedCountry.code === "NP" ? "flag-image--nepal" : ""}
                       src={getFlagUrl(mistake.selectedCountry.code)}
                       alt={`Флаг страны ${mistake.selectedCountry.country}`}
+                      onError={(event) => {
+                        const image = event.currentTarget;
+
+                        if (image.src !== getFlagFallbackUrl(mistake.selectedCountry.code)) {
+                          image.src = getFlagFallbackUrl(mistake.selectedCountry.code);
+                        }
+                      }}
                     />
                   )}
                 </div>

@@ -182,6 +182,10 @@ export function getFlagUrl(code: string): string {
   return `https://flagcdn.com/w320/${code.toLowerCase()}.png`;
 }
 
+export function getFlagFallbackUrl(code: string): string {
+  return `https://flagcdn.com/${code.toLowerCase()}.svg`;
+}
+
 export function formatElapsedTime(milliseconds: number): string {
   const totalSeconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(totalSeconds / 60);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Country } from "../data/countries";
 import {
   formatElapsedTime,
+  getFlagFallbackUrl,
   getFlagUrl,
   type GameType,
   type MistakeAnswer,
@@ -217,6 +218,13 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
                 className={country.code === "NP" ? "flag-image--nepal" : ""}
                 src={getFlagUrl(country.code)}
                 alt={`Флаг страны ${country.country}`}
+                onError={(event) => {
+                  const image = event.currentTarget;
+
+                  if (image.src !== getFlagFallbackUrl(country.code)) {
+                    image.src = getFlagFallbackUrl(country.code);
+                  }
+                }}
               />
             )}
           </button>
