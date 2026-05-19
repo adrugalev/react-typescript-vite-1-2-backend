@@ -21,6 +21,10 @@ const modes: Array<{
     title: "Угадай, чей это флаг",
   },
   {
+    id: "outline",
+    title: "Угадай страну по очертаниям",
+  },
+  {
     id: "bulch",
     title: "Для Бульча",
   },

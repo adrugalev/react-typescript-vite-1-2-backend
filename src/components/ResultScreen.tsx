@@ -1,4 +1,11 @@
-import { formatElapsedTime, getFlagFallbackUrl, getFlagUrl, getResultSummary, type MistakeAnswer } from "../utils/quiz";
+import {
+  formatElapsedTime,
+  getFlagFallbackUrl,
+  getFlagUrl,
+  getOutlineUrl,
+  getResultSummary,
+  type MistakeAnswer,
+} from "../utils/quiz";
 import ResultTravelerIllustration from "./ResultTravelerIllustration";
 
 interface ResultScreenProps {
@@ -12,6 +19,41 @@ interface ResultScreenProps {
 
 function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, onRestart, onChooseMode }: ResultScreenProps) {
   const result = getResultSummary(correctAnswers, totalQuestions);
+
+  const renderMistakeVisual = (mistake: MistakeAnswer, variant: "correct" | "selected") => {
+    const country = variant === "correct" ? mistake.correctCountry : mistake.selectedCountry;
+
+    if (mistake.mode === "flag") {
+      return (
+        <img
+          className={`${variant === "correct" ? "mistake-correct-flag" : ""} ${
+            country.code === "NP" ? "flag-image--nepal" : ""
+          }`}
+          src={getFlagUrl(country.code)}
+          alt={`Флаг страны ${country.country}`}
+          onError={(event) => {
+            const image = event.currentTarget;
+
+            if (image.src !== getFlagFallbackUrl(country.code)) {
+              image.src = getFlagFallbackUrl(country.code);
+            }
+          }}
+        />
+      );
+    }
+
+    if (mistake.mode === "outline") {
+      return (
+        <img
+          className={variant === "correct" ? "mistake-correct-outline" : "mistake-selected-outline"}
+          src={getOutlineUrl(country.code)}
+          alt={`Очертания страны ${country.country}`}
+        />
+      );
+    }
+
+    return null;
+  };
 
   return (
     <section className="screen result-screen" aria-labelledby="result-title">
@@ -52,41 +94,15 @@ function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, o
               <div className="mistake-row" key={`${mistake.correctCountry.code}-${index}`}>
                 <div>
                   <span>{mistake.prompt}</span>
-                  {mistake.mode === "flag" ? (
-                    <img
-                      className={`mistake-correct-flag ${
-                        mistake.correctCountry.code === "NP" ? "flag-image--nepal" : ""
-                      }`}
-                      src={getFlagUrl(mistake.correctCountry.code)}
-                      alt={`Флаг страны ${mistake.correctCountry.country}`}
-                      onError={(event) => {
-                        const image = event.currentTarget;
-
-                        if (image.src !== getFlagFallbackUrl(mistake.correctCountry.code)) {
-                          image.src = getFlagFallbackUrl(mistake.correctCountry.code);
-                        }
-                      }}
-                    />
-                  ) : (
+                  {mistake.mode === "capital" ? (
                     <strong>{mistake.correctCountry.country}</strong>
+                  ) : (
+                    renderMistakeVisual(mistake, "correct")
                   )}
                 </div>
                 <div className="mistake-answer-pair">
                   <small>Твой ответ: {mistake.selectedCountry.country}</small>
-                  {mistake.mode === "flag" && (
-                    <img
-                      className={mistake.selectedCountry.code === "NP" ? "flag-image--nepal" : ""}
-                      src={getFlagUrl(mistake.selectedCountry.code)}
-                      alt={`Флаг страны ${mistake.selectedCountry.country}`}
-                      onError={(event) => {
-                        const image = event.currentTarget;
-
-                        if (image.src !== getFlagFallbackUrl(mistake.selectedCountry.code)) {
-                          image.src = getFlagFallbackUrl(mistake.selectedCountry.code);
-                        }
-                      }}
-                    />
-                  )}
+                  {mistake.mode !== "capital" && renderMistakeVisual(mistake, "selected")}
                 </div>
               </div>
             ))}

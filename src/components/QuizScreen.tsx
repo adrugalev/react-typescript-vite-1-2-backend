@@ -4,6 +4,7 @@ import {
   formatElapsedTime,
   getFlagFallbackUrl,
   getFlagUrl,
+  getOutlineUrl,
   type GameType,
   type MistakeAnswer,
   type Question,
@@ -35,6 +36,8 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
   const currentQuestion = questions[questionIndex];
   const isAnswered = selectedCode !== null;
   const isFlagQuestion = currentQuestion.kind === "flag";
+  const isOutlineQuestion = currentQuestion.kind === "outline";
+  const isVisualQuestion = isFlagQuestion || isOutlineQuestion;
   const completedQuestions = questionIndex + (isAnswered ? 1 : 0);
   const progressStyle = {
     "--quiz-progress": `${(completedQuestions / questions.length) * 100}%`,
@@ -102,7 +105,9 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
             prompt:
               currentQuestion.kind === "capital"
                 ? `Чья столица — ${currentQuestion.country.capital}?`
-                : `Какой флаг у страны ${currentQuestion.country.country}?`,
+                : currentQuestion.kind === "flag"
+                  ? `Какой флаг у страны ${currentQuestion.country.country}?`
+                  : `Где очертания страны ${currentQuestion.country.country}?`,
             mode: currentQuestion.kind,
             correctCountry: currentQuestion.country,
             selectedCountry: country,
@@ -148,8 +153,16 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
   const getOptionClassName = (country: Country) => {
     const classNames = ["answer-card"];
 
+    if (isVisualQuestion) {
+      classNames.push("visual-answer");
+    }
+
     if (isFlagQuestion) {
       classNames.push("flag-answer");
+    }
+
+    if (isOutlineQuestion) {
+      classNames.push("outline-answer");
     }
 
     if (isFlagQuestion && country.code === "NP") {
@@ -191,15 +204,13 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
       </div>
 
       <div className="question-panel">
-        {currentQuestion.kind === "capital" ? (
-          <h2>Чья столица — {currentQuestion.country.capital}?</h2>
-        ) : (
-          <h2>Какой флаг у страны {currentQuestion.country.country}?</h2>
-        )}
+        {currentQuestion.kind === "capital" && <h2>Чья столица — {currentQuestion.country.capital}?</h2>}
+        {currentQuestion.kind === "flag" && <h2>Какой флаг у страны {currentQuestion.country.country}?</h2>}
+        {currentQuestion.kind === "outline" && <h2>Где очертания страны {currentQuestion.country.country}?</h2>}
       </div>
 
       <div
-        className={`answers-grid ${isFlagQuestion ? "flags-grid" : ""} ${
+        className={`answers-grid ${isVisualQuestion ? "visual-grid" : ""} ${
           currentQuestion.options.length === 6 ? "answers-grid--six" : ""
         }`}
       >
@@ -213,7 +224,7 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
           >
             {currentQuestion.kind === "capital" ? (
               country.country
-            ) : (
+            ) : currentQuestion.kind === "flag" ? (
               <img
                 className={country.code === "NP" ? "flag-image--nepal" : ""}
                 src={getFlagUrl(country.code)}
@@ -225,6 +236,12 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
                     image.src = getFlagFallbackUrl(country.code);
                   }
                 }}
+              />
+            ) : (
+              <img
+                className="outline-image"
+                src={getOutlineUrl(country.code)}
+                alt={`Очертания страны ${country.country}`}
               />
             )}
           </button>

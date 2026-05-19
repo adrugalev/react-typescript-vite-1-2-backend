@@ -69,8 +69,8 @@ const RARE_COUNTRY_CODES = new Set([
   "TJ",
 ]);
 
-export type QuizMode = "capital" | "flag" | "bulch";
-export type QuestionKind = "capital" | "flag";
+export type QuizMode = "capital" | "flag" | "outline" | "bulch";
+export type QuestionKind = "capital" | "flag" | "outline";
 export type GameType = "normal" | "timed";
 export type QuestionPool = "all" | "rare";
 
@@ -179,11 +179,15 @@ export function getResultSummary(correct: number, total = ROUND_LENGTH): ResultS
 }
 
 export function getFlagUrl(code: string): string {
-  return `https://flagcdn.com/w320/${code.toLowerCase()}.png`;
+  return `flags/${code.toLowerCase()}.svg`;
 }
 
 export function getFlagFallbackUrl(code: string): string {
-  return `https://flagcdn.com/${code.toLowerCase()}.svg`;
+  return `https://flagcdn.com/w320/${code.toLowerCase()}.png`;
+}
+
+export function getOutlineUrl(code: string): string {
+  return `outlines/${code.toLowerCase()}.svg`;
 }
 
 export function formatElapsedTime(milliseconds: number): string {

@@ -38,6 +38,10 @@ function App() {
         return `Угадай, чей это флаг${rareModeSuffix}`;
       }
 
+      if (mode === "outline") {
+        return `Угадай страну по очертаниям${rareModeSuffix}`;
+      }
+
       return "Для Бульча";
     },
     [mode, rareMode],
