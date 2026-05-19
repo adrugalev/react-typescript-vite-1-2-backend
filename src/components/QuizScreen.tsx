@@ -15,12 +15,21 @@ interface QuizScreenProps {
   mode: QuizMode;
   modeTitle: string;
   gameType: GameType;
+  timedRecord: number | null;
   questions: Question[];
   onBackToStart: () => void;
   onRoundComplete: (correctAnswers: number, elapsedTime: number | null, mistakes: MistakeAnswer[]) => void;
 }
 
-function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRoundComplete }: QuizScreenProps) {
+function QuizScreen({
+  mode,
+  modeTitle,
+  gameType,
+  timedRecord,
+  questions,
+  onBackToStart,
+  onRoundComplete,
+}: QuizScreenProps) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -195,6 +204,7 @@ function QuizScreen({ mode, modeTitle, gameType, questions, onBackToStart, onRou
           {gameType === "timed" && (
             <em className="timer-line">
               <span>Время: {formatElapsedTime(elapsedTime)}</span>
+              <span className="record-line">Рекорд: {timedRecord === null ? "—" : formatElapsedTime(timedRecord)}</span>
               {showPenalty && <span className="penalty-notice">+10 секунд!</span>}
             </em>
           )}

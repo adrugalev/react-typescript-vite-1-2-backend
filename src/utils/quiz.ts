@@ -2,8 +2,10 @@ import type { Country } from "../data/countries";
 
 export const ROUND_LENGTH = 10;
 export const OPTIONS_COUNT = 4;
-export const HARD_ROUND_LENGTH = 15;
+export const HARD_ROUND_LENGTH = 20;
 export const HARD_OPTIONS_COUNT = 6;
+
+const HARD_QUESTION_KINDS: QuestionKind[] = ["capital", "flag", "outline"];
 
 const RARE_COUNTRY_CODES = new Set([
   "AD",
@@ -74,6 +76,13 @@ export type QuestionKind = "capital" | "flag" | "outline";
 export type GameType = "normal" | "timed";
 export type QuestionPool = "all" | "rare";
 
+export interface TimedRecord {
+  time: number;
+  recordedAt: string | null;
+}
+
+export type TimedRecords = Partial<Record<QuizMode, TimedRecord>>;
+
 export interface Question {
   country: Country;
   options: Country[];
@@ -131,10 +140,24 @@ export function getOptionsCount(mode: QuizMode): number {
 
 export function getQuestionKind(mode: QuizMode): QuestionKind {
   if (mode === "bulch") {
-    return Math.random() > 0.5 ? "capital" : "flag";
+    return shuffleArray(HARD_QUESTION_KINDS)[0];
   }
 
   return mode;
+}
+
+export function getQuestionKinds(mode: QuizMode, count: number): QuestionKind[] {
+  if (mode !== "bulch") {
+    return Array.from({ length: count }, () => getQuestionKind(mode));
+  }
+
+  const kinds: QuestionKind[] = [];
+
+  while (kinds.length < count) {
+    kinds.push(...shuffleArray(HARD_QUESTION_KINDS));
+  }
+
+  return kinds.slice(0, count);
 }
 
 export function createRoundQuestions(
@@ -148,11 +171,12 @@ export function createRoundQuestions(
   const shouldUseRareCountries = mode === "bulch" || questionPool === "rare";
   const questionSource = shouldUseRareCountries && rareCountries.length >= count ? rareCountries : countries;
   const optionSource = shouldUseRareCountries && rareCountries.length >= optionCount ? rareCountries : countries;
+  const questionKinds = getQuestionKinds(mode, count);
 
-  return pickRandomQuestions(questionSource, count).map((country) => ({
+  return pickRandomQuestions(questionSource, count).map((country, index) => ({
     country,
     options: generateOptions(optionSource, country, optionCount),
-    kind: getQuestionKind(mode),
+    kind: questionKinds[index],
   }));
 }
 

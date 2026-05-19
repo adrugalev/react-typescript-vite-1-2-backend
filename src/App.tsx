@@ -11,9 +11,74 @@ import {
   type Question,
   type QuestionPool,
   type QuizMode,
+  type TimedRecords,
 } from "./utils/quiz";
 
 type Screen = "start" | "quiz" | "result";
+interface TimedRecordNotice {
+  previousRecord: number | null;
+  newRecord: number;
+}
+
+const TIMED_RECORDS_STORAGE_KEY = "countries-world-quiz:timed-records";
+const QUIZ_MODES: QuizMode[] = ["capital", "flag", "outline", "bulch"];
+
+function readTimedRecords(): TimedRecords {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
+  try {
+    const savedRecords = window.localStorage.getItem(TIMED_RECORDS_STORAGE_KEY);
+
+    if (savedRecords === null) {
+      return {};
+    }
+
+    const parsedRecords = JSON.parse(savedRecords) as Partial<Record<string, unknown>>;
+
+    return QUIZ_MODES.reduce<TimedRecords>((records, quizMode) => {
+      const savedRecord = parsedRecords[quizMode];
+
+      if (typeof savedRecord === "number" && Number.isFinite(savedRecord) && savedRecord > 0) {
+        records[quizMode] = {
+          time: savedRecord,
+          recordedAt: null,
+        };
+        return records;
+      }
+
+      if (savedRecord !== null && typeof savedRecord === "object") {
+        const { time, recordedAt } = savedRecord as { time?: unknown; recordedAt?: unknown };
+        const recordDate =
+          typeof recordedAt === "string" && !Number.isNaN(Date.parse(recordedAt)) ? recordedAt : null;
+
+        if (typeof time === "number" && Number.isFinite(time) && time > 0) {
+          records[quizMode] = {
+            time,
+            recordedAt: recordDate,
+          };
+        }
+      }
+
+      return records;
+    }, {});
+  } catch {
+    return {};
+  }
+}
+
+function saveTimedRecords(records: TimedRecords) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(TIMED_RECORDS_STORAGE_KEY, JSON.stringify(records));
+  } catch {
+    // Игру можно продолжать даже если браузер запретил запись в localStorage.
+  }
+}
 
 function App() {
   const [screen, setScreen] = useState<Screen>("start");
@@ -25,6 +90,8 @@ function App() {
   const [totalQuestions, setTotalQuestions] = useState(getRoundLength("capital"));
   const [mistakes, setMistakes] = useState<MistakeAnswer[]>([]);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
+  const [timedRecords, setTimedRecords] = useState<TimedRecords>(() => readTimedRecords());
+  const [timedRecordNotice, setTimedRecordNotice] = useState<TimedRecordNotice | null>(null);
 
   const modeTitle = useMemo(
     () => {
@@ -56,6 +123,7 @@ function App() {
     setTotalQuestions(getRoundLength(selectedMode));
     setMistakes([]);
     setElapsedTime(null);
+    setTimedRecordNotice(null);
     setScreen("quiz");
   };
 
@@ -64,9 +132,33 @@ function App() {
     finalElapsedTime: number | null,
     roundMistakes: MistakeAnswer[],
   ) => {
+    let nextTimedRecordNotice: TimedRecordNotice | null = null;
+
+    if (gameType === "timed" && finalElapsedTime !== null) {
+      const currentRecord = timedRecords[mode];
+
+      if (currentRecord === undefined || currentRecord.time > finalElapsedTime) {
+        const nextTimedRecords = {
+          ...timedRecords,
+          [mode]: {
+            time: finalElapsedTime,
+            recordedAt: new Date().toISOString(),
+          },
+        };
+
+        setTimedRecords(nextTimedRecords);
+        saveTimedRecords(nextTimedRecords);
+        nextTimedRecordNotice = {
+          previousRecord: currentRecord?.time ?? null,
+          newRecord: finalElapsedTime,
+        };
+      }
+    }
+
     setCorrectAnswers(correct);
     setMistakes(roundMistakes);
     setElapsedTime(finalElapsedTime);
+    setTimedRecordNotice(nextTimedRecordNotice);
     setScreen("result");
   };
 
@@ -77,6 +169,7 @@ function App() {
           <StartScreen
             gameType={gameType}
             rareMode={rareMode}
+            timedRecords={timedRecords}
             onSelectGameType={setGameType}
             onToggleRareMode={setRareMode}
             onSelectMode={startRound}
@@ -88,6 +181,7 @@ function App() {
             mode={mode}
             modeTitle={modeTitle}
             gameType={gameType}
+            timedRecord={timedRecords[mode]?.time ?? null}
             questions={questions}
             onBackToStart={() => setScreen("start")}
             onRoundComplete={handleRoundComplete}
@@ -100,6 +194,7 @@ function App() {
             totalQuestions={totalQuestions}
             mistakes={mistakes}
             elapsedTime={elapsedTime}
+            timedRecordNotice={timedRecordNotice}
             onRestart={() => startRound()}
             onChooseMode={() => setScreen("start")}
           />

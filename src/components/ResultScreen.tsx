@@ -13,12 +13,32 @@ interface ResultScreenProps {
   totalQuestions: number;
   mistakes: MistakeAnswer[];
   elapsedTime: number | null;
+  timedRecordNotice: {
+    previousRecord: number | null;
+    newRecord: number;
+  } | null;
   onRestart: () => void;
   onChooseMode: () => void;
 }
 
-function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, onRestart, onChooseMode }: ResultScreenProps) {
+function ResultScreen({
+  correctAnswers,
+  totalQuestions,
+  mistakes,
+  elapsedTime,
+  timedRecordNotice,
+  onRestart,
+  onChooseMode,
+}: ResultScreenProps) {
   const result = getResultSummary(correctAnswers, totalQuestions);
+  const recordMessage =
+    timedRecordNotice === null
+      ? null
+      : timedRecordNotice.previousRecord === null
+        ? `Первый рекорд установлен: ${formatElapsedTime(timedRecordNotice.newRecord)}!`
+        : `Новый рекорд по времени! Было ${formatElapsedTime(timedRecordNotice.previousRecord)}, стало ${formatElapsedTime(
+            timedRecordNotice.newRecord,
+          )}.`;
 
   const renderMistakeVisual = (mistake: MistakeAnswer, variant: "correct" | "selected") => {
     const country = variant === "correct" ? mistake.correctCountry : mistake.selectedCountry;
@@ -62,6 +82,12 @@ function ResultScreen({ correctAnswers, totalQuestions, mistakes, elapsedTime, o
         <h1 id="result-title">Раунд завершён</h1>
         <p className="lead">{result.message}</p>
       </div>
+
+      {recordMessage !== null && (
+        <p className="record-banner" role="status">
+          {recordMessage}
+        </p>
+      )}
 
       <ResultTravelerIllustration percent={result.percent} />
 
