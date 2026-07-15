@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Страны мира</title>
-    <script defer src="./assets/index-CCb8hLGU.js"></script>
-    <link rel="stylesheet" href="./assets/index-BhxLoTKE.css">
+    <script defer src="./assets/index-BnGf_8Vl.js"></script>
+    <link rel="stylesheet" href="./assets/index-C12WO67q.css">
   </head>
   <body>
     <div id="root"></div>
@@ -16,6 +16,19 @@
         }
 
         document.documentElement.classList.add("streamlit-embedded");
+
+        const syncParentViewport = () => {
+          try {
+            const parentHeight = window.parent.innerHeight;
+
+            if (Number.isFinite(parentHeight) && parentHeight > 0) {
+              document.documentElement.style.setProperty("--streamlit-parent-height", `${parentHeight}px`);
+              document.documentElement.classList.add("streamlit-embedded--parent-sized");
+            }
+          } catch {
+            // The top-aligned embedded layout remains as a safe fallback.
+          }
+        };
 
         const sendMessage = (type, payload = {}) => {
           window.parent.postMessage({ isStreamlitMessage: true, type, ...payload }, "*");
@@ -28,6 +41,7 @@
           sendMessage("streamlit:setFrameHeight", { height });
         };
 
+        syncParentViewport();
         sendMessage("streamlit:componentReady", { apiVersion: 1 });
 
         const observeHeight = () => {
@@ -39,7 +53,10 @@
             observer.observe(document.body);
           }
 
-          window.addEventListener("resize", syncHeight);
+          window.addEventListener("resize", () => {
+            syncParentViewport();
+            syncHeight();
+          });
         };
 
         if (document.readyState === "loading") {

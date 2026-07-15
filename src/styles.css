@@ -978,6 +978,15 @@ html.streamlit-embedded .app-main {
   padding-top: 16px;
 }
 
+html.streamlit-embedded--parent-sized .app-shell {
+  min-height: var(--streamlit-parent-height);
+}
+
+html.streamlit-embedded--parent-sized .app-main {
+  place-items: center;
+  padding-top: clamp(14px, 2.6vh, 28px);
+}
+
 @media (max-width: 760px) {
   .app-main {
     width: min(100% - 20px, 1120px);
