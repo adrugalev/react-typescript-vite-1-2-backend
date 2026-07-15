@@ -8,6 +8,44 @@
     <link rel="stylesheet" href="./assets/index-CklSQI7K.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
+    <script>
+      (() => {
+        if (window.parent === window) {
+          return;
+        }
+
+        const sendMessage = (type, payload = {}) => {
+          window.parent.postMessage({ isStreamlitMessage: true, type, ...payload }, "*");
+        };
+
+        const syncHeight = () => {
+          const height = Math.ceil(
+            Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0),
+          );
+          sendMessage("streamlit:setFrameHeight", { height });
+        };
+
+        sendMessage("streamlit:componentReady", { apiVersion: 1 });
+
+        const observeHeight = () => {
+          syncHeight();
+
+          if (typeof ResizeObserver !== "undefined") {
+            const observer = new ResizeObserver(() => window.requestAnimationFrame(syncHeight));
+            observer.observe(document.documentElement);
+            observer.observe(document.body);
+          }
+
+          window.addEventListener("resize", syncHeight);
+        };
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", observeHeight, { once: true });
+        } else {
+          observeHeight();
+        }
+      })();
+    </script>
   </body>
 </html>

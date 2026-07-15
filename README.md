@@ -16,6 +16,24 @@ npm run dev
 
 После запуска Vite покажет локальный адрес приложения, обычно `http://localhost:5173`.
 
+## Запуск через Streamlit
+
+Сначала подготовьте клиентскую сборку:
+
+```bash
+npm install
+npm run build
+```
+
+Затем установите Python-зависимости и запустите Streamlit:
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+Для Streamlit Community Cloud укажите `streamlit_app.py` в поле **Main file path**. Папка `dist` должна быть добавлена в Git-репозиторий.
+
 ## Режимы игры
 
 - «Угадай, чья это столица»: игрок видит столицу и выбирает правильную страну.
