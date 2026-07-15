@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Страны мира</title>
-    <script defer src="./assets/index-ffzKi4-Q.js"></script>
-    <link rel="stylesheet" href="./assets/index-CklSQI7K.css">
+    <script defer src="./assets/index-DckFwsmr.js"></script>
+    <link rel="stylesheet" href="./assets/index-BhxLoTKE.css">
   </head>
   <body>
     <div id="root"></div>
@@ -14,6 +14,8 @@
         if (window.parent === window) {
           return;
         }
+
+        document.documentElement.classList.add("streamlit-embedded");
 
         const sendMessage = (type, payload = {}) => {
           window.parent.postMessage({ isStreamlitMessage: true, type, ...payload }, "*");

@@ -18,6 +18,12 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+      header[data-testid="stHeader"],
+      [data-testid="stToolbar"],
+      [data-testid="stDecoration"] {
+        display: none !important;
+      }
+
       [data-testid="stMainBlockContainer"] {
         max-width: none;
         padding: 0 !important;
@@ -25,6 +31,10 @@ st.markdown(
 
       [data-testid="stAppViewContainer"] {
         background: #eef3f7;
+      }
+
+      [data-testid="stVerticalBlock"] {
+        gap: 0;
       }
 
       iframe[title="countries_world_quiz"] {

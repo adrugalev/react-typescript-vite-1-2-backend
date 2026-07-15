@@ -964,6 +964,20 @@ h2 {
   text-align: center;
 }
 
+html.streamlit-embedded,
+html.streamlit-embedded body {
+  min-height: 0;
+}
+
+html.streamlit-embedded .app-shell {
+  min-height: 0;
+}
+
+html.streamlit-embedded .app-main {
+  place-items: start center;
+  padding-top: 16px;
+}
+
 @media (max-width: 760px) {
   .app-main {
     width: min(100% - 20px, 1120px);

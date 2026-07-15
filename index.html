@@ -14,6 +14,8 @@
           return;
         }
 
+        document.documentElement.classList.add("streamlit-embedded");
+
         const sendMessage = (type, payload = {}) => {
           window.parent.postMessage({ isStreamlitMessage: true, type, ...payload }, "*");
         };
