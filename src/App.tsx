@@ -134,7 +134,9 @@ function App() {
   ) => {
     let nextTimedRecordNotice: TimedRecordNotice | null = null;
 
-    if (gameType === "timed" && finalElapsedTime !== null) {
+    const isPerfectRound = correct === questions.length;
+
+    if (gameType === "timed" && finalElapsedTime !== null && isPerfectRound) {
       const currentRecord = timedRecords[mode];
 
       if (currentRecord === undefined || currentRecord.time > finalElapsedTime) {
